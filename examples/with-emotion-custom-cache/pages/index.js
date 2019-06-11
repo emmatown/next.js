@@ -2,7 +2,35 @@
 import React from 'react'
 import Head from 'next/head'
 import styled from '@emotion/styled'
-import { keyframes, css, Global, jsx } from '@emotion/core'
+import {
+  keyframes,
+  css,
+  Global,
+  jsx,
+  CacheProvider,
+  withEmotionCache,
+} from '@emotion/core'
+import createCache from '@emotion/cache'
+import { Container } from 'next/dist/pages/_app'
+
+const cacheOptions = {
+  // prefix styles with "custom-cache" instead of "css"
+  // e.g. "custom-cache-d6wh4r"
+  key: 'custom-cache',
+  // only prefix the following style properties
+  prefix: key => {
+    switch (key) {
+      case 'appearance':
+      case 'user-select':
+      case ':placeholder':
+        return true
+      default:
+        return false
+    }
+  },
+}
+
+export const testCache = createCache(cacheOptions)
 
 const basicStyles = css`
   background-color: white;
@@ -51,33 +79,40 @@ const Animated = styled.div`
   }
   animation: ${props => props.animation} 0.2s infinite ease-in-out alternate;
 `
+const Main = withEmotionCache((props, cache) => {
+  console.log('Main cache', cache)
+  return <div {...props} />
+})
 
 export default () => {
   return (
-    <React.Fragment>
-      <Global
-        styles={css`
-          html,
-          body {
-            padding: 3rem 1rem;
-            margin: 0;
-            background: papayawhip;
-            min-height: 100%;
-            font-family: Helvetica, Arial, sans-serif;
-            font-size: 24px;
-          }
-        `}
-      />
-      <Head>
-        <title>With Emotion</title>
-      </Head>
-      <div css={{ display: 'flex', flexDirection: 'column' }}>
-        <Basic>Inspect my parent to see the lack of flexbox autoprefixing</Basic>
-        <Combined>
-          With <code>:hover</code>.
-        </Combined>
-        <Animated animation={bounce}>Let's bounce.</Animated>
-      </div>
-    </React.Fragment>
+
+      <React.Fragment>
+        <Main>Hello</Main>
+        <Global
+          styles={{
+            'html, body': {
+              padding: '3rem 1rem',
+              margin: 0,
+              background: 'papayawhip',
+              minHeight: '100%',
+              fontFamily: 'Helvetica, Arial, sans-serif',
+              fontSize: 24,
+            },
+          }}
+        />
+        <Head>
+          <title>With Emotion</title>
+        </Head>
+        <div css={{ display: 'flex', flexDirection: 'column' }}>
+          <Basic>
+            Inspect my parent to see the lack of flexbox autoprefixing
+          </Basic>
+          <Combined>
+            With <code>:hover</code>.
+          </Combined>
+          <Animated animation={bounce}>Let's bounce.</Animated>
+        </div>
+      </React.Fragment>
   )
 }
