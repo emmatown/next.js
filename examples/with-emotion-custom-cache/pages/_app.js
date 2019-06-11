@@ -48,9 +48,11 @@ class EmotionApp extends App {
     const { Component, pageProps } = this.props
     // console.log(testCache);
     return (
-      <Main>
-        <Component {...pageProps} />
-      </Main>
+      <CacheProvider value={testCache}>
+        <Main>
+          <Component {...pageProps} />
+        </Main>
+      </CacheProvider>
     )
   }
 }
